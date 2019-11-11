@@ -98,8 +98,7 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
   
   // PUblish in JSON format
   if (config.mqtt_publish_json) {
-      snprintf(fulltopic, strlen(config.mqtt_topic) + 2, "%s", config.mqtt_topic,
-           topic);
+      snprintf(fulltopic, strlen(config.mqtt_topic) + 2, "%s", config.mqtt_topic);
       cJSON *jvalue = NULL;
       cJSON *jmsg = cJSON_CreateObject();
       if (jmsg == NULL) 
