@@ -128,13 +128,13 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
         cJSON_AddItemToObject(jmsg, topic , jvalue);
       }
     } else { // length == 0 
-      jvalue = cJSON_CreateNull();
-      if (jvalue == NULL)
-      {
-        debug(1, "[MQTT]: json jvalue creation NULL failed");
-      } else {
-        cJSON_AddItemToObject(jmsg, topic ,jvalue);
-      }
+      // jvalue = cJSON_CreateNull();
+      // if (jvalue == NULL)
+      // {
+      //   debug(1, "[MQTT]: json jvalue creation NULL failed");
+      // } else {
+      //   cJSON_AddItemToObject(jmsg, topic ,jvalue);
+      // }
     }
     
 
