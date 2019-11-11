@@ -115,16 +115,18 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
         debug(1, "[MQTT]: json object creation failed"); goto end; 
       }
 
-    strncpy(jvalue_str, data, length);
-    jvalue_str[length] = '\0';
-    debug(1, "[MQTT]: json jvalue_str %s, %d",jvalue_str,length);
-    jvalue = cJSON_CreateString(jvalue_str);
-    if (jvalue == NULL)
-    {
-      debug(1, "[MQTT]: json jvalue creation from %s failed",jvalue_str);
-    } else {
-      cJSON_AddItemToObject(jmsg, topic , jvalue);
-    }
+    if(length > 0) {
+      strncpy(jvalue_str, data, length);
+      jvalue_str[length] = '\0';
+      debug(1, "[MQTT]: json jvalue_str %s, %d",jvalue_str,length);
+      jvalue = cJSON_CreateString(jvalue_str);
+      if (jvalue == NULL)
+      {
+        debug(1, "[MQTT]: json jvalue creation from %s failed",jvalue_str);
+      } else {
+        cJSON_AddItemToObject(jmsg, topic , jvalue);
+      }
+    
 
     // if(strlen(data) > length ) {  
     //   strncpy(jtype_str, data+length, length - strlen(data) );
@@ -136,6 +138,10 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
     //     cJSON_AddItemToObject(jmsg, "type" , jtype);
     //   }
     // }
+
+    } else {
+      cJSON_AddItemToObject(jmsg, topic , "");
+    }
 
     jmsg_str = cJSON_Print(jmsg);
     if (data == NULL)
