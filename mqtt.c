@@ -95,47 +95,66 @@ void on_connect(struct mosquitto *mosq, __attribute__((unused)) void *userdata,
 // helper function to publish under a topic and automatically append the main topic
 void mqtt_publish(char *topic, char *data, uint32_t length) {
   char fulltopic[strlen(config.mqtt_topic) + strlen(topic) + 3];
+  char *jmsg_str;
+  debug(2, "[MQTT]: data %s", data);
   
   // PUblish in JSON format
   if (config.mqtt_publish_json) {
-      snprintf(fulltopic, strlen(config.mqtt_topic) + 2, "%s", config.mqtt_topic);
-      cJSON *jvalue = NULL;
-      cJSON *jmsg = cJSON_CreateObject();
-      if (jmsg == NULL) 
-        { 
-          debug(1, "[MQTT]: json object creation failed"); goto end; 
-        }
-
-      jvalue = cJSON_CreateString(data);
-      if (jvalue == NULL)
-      {
-        debug(1, "[MQTT]: json jvalue creation failed"); goto end;
+    snprintf(fulltopic, strlen(config.mqtt_topic) + 2, "%s", config.mqtt_topic);
+    cJSON *jvalue = NULL;
+    cJSON *jmsg = cJSON_CreateObject();
+    if (jmsg == NULL) 
+      { 
+        debug(1, "[MQTT]: json object creation failed"); goto end; 
       }
 
-      cJSON_AddItemToObject(jmsg, topic , jvalue);
-      data = cJSON_Print(jmsg);
-      if (data == NULL)
-      {
-        debug(1, "[MQTT]: json msg string conversion failed"); goto end;
-      }
-      end:
-      cJSON_Delete(jmsg);
-  } else {
-      snprintf(fulltopic, strlen(config.mqtt_topic) + strlen(topic) + 2, "%s/%s", config.mqtt_topic, topic);
-  }
+    jvalue = cJSON_CreateString(data);
+    if (jvalue == NULL)
+    {
+      debug(1, "[MQTT]: json jvalue creation failed"); goto end;
+    }
 
-  int rc;
-  debug(1, "[MQTT]: publishing under %s", fulltopic);
-  debug(2, "[MQTT]: message %s", data);
-  if ((rc = mosquitto_publish(global_mosq, NULL, fulltopic, length, data, 0, 0)) !=
+    cJSON_AddItemToObject(jmsg, topic , jvalue);
+    jmsg_str = cJSON_PrintUnformatted(jmsg);
+    if (data == NULL)
+    {
+      debug(1, "[MQTT]: json msg string conversion failed"); goto end;
+    }
+    end:
+    cJSON_Delete(jmsg);
+    
+    snprintf(fulltopic, strlen(config.mqtt_topic) + strlen(topic) + 2, "%s/%s", config.mqtt_topic, topic);
+    int rc;
+    debug(1, "[MQTT]: publishing under %s", fulltopic);
+    debug(2, "[MQTT]: message %s", data);
+    
+    if ((rc = mosquitto_publish(global_mosq, NULL, fulltopic, strlen(jmsg_str), jmsg_str , 0, 0)) !=
       MOSQ_ERR_SUCCESS) {
-    switch (rc) {
-    case MOSQ_ERR_NO_CONN:
-      debug(1, "[MQTT]: Publish failed: not connected to broker");
-      break;
-    default:
-      debug(1, "[MQTT]: Publish failed: unknown error");
-      break;
+      switch (rc) {
+        case MOSQ_ERR_NO_CONN:
+          debug(1, "[MQTT]: Publish failed: not connected to broker");
+          break;
+        default:
+          debug(1, "[MQTT]: Publish failed: unknown error");
+        break;
+      }
+    }  
+    
+  } else {
+    snprintf(fulltopic, strlen(config.mqtt_topic) + strlen(topic) + 2, "%s/%s", config.mqtt_topic, topic);
+    int rc;
+    debug(1, "[MQTT]: publishing under %s", fulltopic);
+    debug(2, "[MQTT]: message %s", data);
+    if ((rc = mosquitto_publish(global_mosq, NULL, fulltopic, strlen(data), data, 0, 0)) !=
+      MOSQ_ERR_SUCCESS) {
+      switch (rc) {
+        case MOSQ_ERR_NO_CONN:
+          debug(1, "[MQTT]: Publish failed: not connected to broker");
+          break;
+        default:
+          debug(1, "[MQTT]: Publish failed: unknown error");
+        break;
+      }
     }
   }
 }
