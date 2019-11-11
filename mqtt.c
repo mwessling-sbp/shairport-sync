@@ -98,6 +98,8 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
   
   // PUblish in JSON format
   if (config.mqtt_publish_json) {
+      snprintf(fulltopic, strlen(config.mqtt_topic) + 2, "%s", config.mqtt_topic,
+           topic);
       cJSON *jvalue = NULL;
       cJSON *jmsg = cJSON_CreateObject();
       if (jmsg == NULL) 
@@ -110,6 +112,7 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
       {
         debug(1, "[MQTT]: json jvalue creation failed"); goto end;
       }
+
       cJSON_AddItemToObject(jmsg, topic , jvalue);
       data = cJSON_Print(jmsg);
       if (data == NULL)
@@ -119,14 +122,12 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
       end:
       cJSON_Delete(jmsg);
   } else {
-    snprintf(fulltopic, strlen(config.mqtt_topic) + strlen(topic) + 2, "%s/%s", config.mqtt_topic,
-           topic);
-    debug(1, "[MQTT]: publishing under %s", fulltopic);
+      snprintf(fulltopic, strlen(config.mqtt_topic) + strlen(topic) + 2, "%s/%s", config.mqtt_topic, topic);
   }
 
-
   int rc;
-  debug(2, "[MQTT]: message %s", fulltopic);
+  debug(1, "[MQTT]: publishing under %s", fulltopic);
+  debug(2, "[MQTT]: message %s", data);
   if ((rc = mosquitto_publish(global_mosq, NULL, fulltopic, length, data, 0, 0)) !=
       MOSQ_ERR_SUCCESS) {
     switch (rc) {
