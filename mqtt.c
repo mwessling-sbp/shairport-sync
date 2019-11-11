@@ -114,7 +114,7 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
       { 
         debug(1, "[MQTT]: json object creation failed"); goto end; 
       }
-      debug(1, "[MQTT]: json object creation succeeded"); goto end; 
+      debug(1, "[MQTT]: json object creation succeeded"); 
 
     if(length > 0) {
       strncpy(jvalue_str, data, length);
@@ -127,7 +127,7 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
       } else {
         cJSON_AddItemToObject(jmsg, topic , jvalue);
       }
-    } else {
+    } else { // length == 0 
       jvalue = cJSON_CreateNull();
       if (jvalue == NULL)
       {
