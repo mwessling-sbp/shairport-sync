@@ -172,7 +172,7 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
       }
     }  
 
-    free(jmsg_str);
+    // free(jmsg_str);
     end:
     cJSON_Delete(jmsg);
   
