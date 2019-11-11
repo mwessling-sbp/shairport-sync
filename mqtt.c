@@ -100,9 +100,11 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
   
   // PUblish in JSON format
   if (config.mqtt_publish_json) {
-    snprintf(fulltopic, strlen(config.mqtt_topic) + 2, "%s/airplay", config.mqtt_topic);
+    char subtopic = "airplay";
+    snprintf(fulltopic, strlen(config.mqtt_topic) + strlen(subtopic) + 2, "%s/%s", config.mqtt_topic,subtopic );
+
     cJSON *jvalue = NULL;
-    cJSON *jmsg = cJSON_CreateObject();
+    cJSON *jmsg   = cJSON_CreateObject();
     if (jmsg == NULL) 
       { 
         debug(1, "[MQTT]: json object creation failed"); goto end; 
