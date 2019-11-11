@@ -120,10 +120,7 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
     {
       debug(1, "[MQTT]: json msg string conversion failed"); goto end;
     }
-    end:
-    cJSON_Delete(jmsg);
     
-    snprintf(fulltopic, strlen(config.mqtt_topic) + strlen(topic) + 2, "%s/%s", config.mqtt_topic, topic);
     int rc;
     debug(1, "[MQTT]: publishing under %s", fulltopic);
     debug(2, "[MQTT]: message %s", data);
@@ -139,13 +136,18 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
         break;
       }
     }  
-    
+
+    free(jmsg_str);
+    end:
+    cJSON_Delete(jmsg);
+  
   } else {
+  
     snprintf(fulltopic, strlen(config.mqtt_topic) + strlen(topic) + 2, "%s/%s", config.mqtt_topic, topic);
     int rc;
     debug(1, "[MQTT]: publishing under %s", fulltopic);
     debug(2, "[MQTT]: message %s", data);
-    if ((rc = mosquitto_publish(global_mosq, NULL, fulltopic, strlen(data), data, 0, 0)) !=
+    if ((rc = mosquitto_publish(global_mosq, NULL, fulltopic, length, data, 0, 0)) !=
       MOSQ_ERR_SUCCESS) {
       switch (rc) {
         case MOSQ_ERR_NO_CONN:
@@ -156,6 +158,7 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
         break;
       }
     }
+  
   }
 }
 
