@@ -14,6 +14,8 @@
 #include "mqtt.h"
 #include <mosquitto.h>
 
+#include "cJSON.h"
+
 // this holds the mosquitto client
 struct mosquitto *global_mosq = NULL;
 char *topic = NULL;
