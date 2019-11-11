@@ -116,6 +116,7 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
       }
 
     strncpy(jvalue_str, data, length);
+    jvalue_str[length] = '\0';
     debug(1, "[MQTT]: json jvalue_str %s, %d",jvalue_str,length);
     jvalue = cJSON_CreateString(jvalue_str);
     if (jvalue == NULL)
