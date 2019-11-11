@@ -98,9 +98,9 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
   
   // PUblish in JSON format
   if (config.mqtt_publish_json) {
-      char *jvalue = NULL;
-      
+      cJSON *jvalue = NULL;
       cJSON *jmsg = NULL;
+
       if (jmsg == NULL) 
         { 
           debug(1, "[MQTT]: json object creation failed"); goto end; 
@@ -117,7 +117,7 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
       {
         debug(1, "[MQTT]: json msg string conversion failed");goto end;
       }
-      :end
+      end:
       cJSON_Delete(jmsg);
   } else {
     snprintf(fulltopic, strlen(config.mqtt_topic) + strlen(topic) + 2, "%s/%s", config.mqtt_topic,
