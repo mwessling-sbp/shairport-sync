@@ -161,7 +161,9 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
           break;
         }
       }  
-
+     end:
+    cJSON_Delete(jmsg);
+  
     } else { // length == 0 
       // jvalue = cJSON_CreateNull();
       // if (jvalue == NULL)
@@ -172,9 +174,7 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
       // }
     }
     // free(jmsg_str);
-    end:
-    cJSON_Delete(jmsg);
-  
+ 
   } else {
   
     snprintf(fulltopic, strlen(config.mqtt_topic) + strlen(topic) + 2, "%s/%s", config.mqtt_topic, topic);
