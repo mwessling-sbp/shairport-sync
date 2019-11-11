@@ -146,7 +146,7 @@ void mqtt_publish(char *topic, char *data, uint32_t length, int is_event)
 
       strncpy(jevent_str, data, length);
       jevent_str[length] = '\0';
-      debug(1, "[MQTT]: json jevent_str %s, %d", jvalue_str, length);
+      debug(1, "[MQTT]: json jevent_str %s, %d", jevent_str, length);
       jvalue = cJSON_CreateString(jevent_str);
       if (jvalue == NULL)
       {
