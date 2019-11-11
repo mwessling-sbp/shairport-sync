@@ -96,7 +96,7 @@ void on_connect(struct mosquitto *mosq, __attribute__((unused)) void *userdata,
 void mqtt_publish(char *topic, char *data, uint32_t length) {
   char fulltopic[strlen(config.mqtt_topic) + strlen(topic) + 3];
   char *jmsg_str;
-  debug(2, "[MQTT]: data %s", data);
+  debug(2, "[MQTT]: data %s, %d", data, length);
   
   // PUblish in JSON format
   if (config.mqtt_publish_json) {
