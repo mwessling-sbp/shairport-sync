@@ -157,7 +157,7 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
     
     int rc;
     debug(1, "[MQTT]: publishing under %s", fulltopic);
-    debug(2, "[MQTT]: message %s", data);
+    debug(2, "[MQTT]: message %s", jmsg_str);
     
     if ((rc = mosquitto_publish(global_mosq, NULL, fulltopic, strlen(jmsg_str), jmsg_str , 0, 0)) !=
       MOSQ_ERR_SUCCESS) {
