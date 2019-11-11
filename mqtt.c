@@ -116,6 +116,7 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
       }
 
     strncpy(jvalue_str, data, length);
+    debug(1, "[MQTT]: json jvalue_str %s, %d",jvalue_str,length);
     jvalue = cJSON_CreateString(jvalue_str);
     if (jvalue == NULL)
     {
@@ -124,16 +125,16 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
       cJSON_AddItemToObject(jmsg, topic , jvalue);
     }
 
-    if(strlen(data) > length ) {  
-      strncpy(jtype_str, data+length, length - strlen(data) );
-      jtype = cJSON_CreateString(jtype_str);
-      if (jtype == NULL)
-      {
-        debug(1, "[MQTT]: json jtype creation from %s failed",jtype_str);
-      } else {
-        cJSON_AddItemToObject(jmsg, "type" , jtype);
-      }
-    }
+    // if(strlen(data) > length ) {  
+    //   strncpy(jtype_str, data+length, length - strlen(data) );
+    //   jtype = cJSON_CreateString(jtype_str);
+    //   if (jtype == NULL)
+    //   {
+    //     debug(1, "[MQTT]: json jtype creation from %s failed",jtype_str);
+    //   } else {
+    //     cJSON_AddItemToObject(jmsg, "type" , jtype);
+    //   }
+    // }
 
     jmsg_str = cJSON_Print(jmsg);
     if (data == NULL)
