@@ -96,7 +96,7 @@ void on_connect(struct mosquitto *mosq, __attribute__((unused)) void *userdata,
 void mqtt_publish(char *topic, char *data, uint32_t length) {
   char fulltopic[strlen(config.mqtt_topic) + strlen(topic) + 3];
   char *jmsg_str;
-  debug(2, "[MQTT]: data %s, %d", data, length);
+  debug(2, "[MQTT]: topic %s, data %s, %d", topic, data, length);
   
   // PUblish in JSON format
   if (config.mqtt_publish_json) {
@@ -126,6 +126,15 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
       } else {
         cJSON_AddItemToObject(jmsg, topic , jvalue);
       }
+    } else {
+      jvalue = cJSON_CreateNull();
+      if (jvalue == NULL)
+      {
+        debug(1, "[MQTT]: json jvalue creation NULL failed");
+      } else {
+        cJSON_AddItemToObject(jmsg, topic ,jvalue);
+      }
+    }
     
 
     // if(strlen(data) > length ) {  
@@ -139,9 +148,7 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
     //   }
     // }
 
-    } else {
-      cJSON_AddItemToObject(jmsg, topic , "");
-    }
+
 
     jmsg_str = cJSON_Print(jmsg);
     if (data == NULL)
