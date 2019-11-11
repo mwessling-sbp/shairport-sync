@@ -142,15 +142,11 @@ void mqtt_publish(char *topic, char *data, uint32_t length, int is_event)
     }
     else if (is_event)
     {
-      char jevent_str[strlen(data) + 1];
-
-      strncpy(jevent_str, data, length);
-      jevent_str[length] = '\0';
-      debug(1, "[MQTT]: json jevent_str %s, %d", jevent_str, length);
-      jvalue = cJSON_CreateString(jevent_str);
+      debug(1, "[MQTT]: json jevent_str %s", topic);
+      jvalue = cJSON_CreateString(topic);
       if (jvalue == NULL)
       {
-        debug(1, "[MQTT]: json jvalue creation from %s failed", jevent_str);
+        debug(1, "[MQTT]: json jvalue creation from %s failed", topic);
       }
       else
       {
