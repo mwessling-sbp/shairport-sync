@@ -109,13 +109,13 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
       jvalue = cJSON_CreateString(data);
       if (jvalue == NULL)
       {
-        debug(1, "[MQTT]: json jvalue creation failed");goto end;
+        debug(1, "[MQTT]: json jvalue creation failed"); goto end;
       }
-      cJSON_AddItemToObject(jsmsg, topic , jvalue);
-      data = cJSON_Print(jsmg);
+      cJSON_AddItemToObject(jmsg, topic , jvalue);
+      data = cJSON_Print(jmsg);
       if (data == NULL)
       {
-        debug(1, "[MQTT]: json msg string conversion failed");goto end;
+        debug(1, "[MQTT]: json msg string conversion failed"); goto end;
       }
       end:
       cJSON_Delete(jmsg);
