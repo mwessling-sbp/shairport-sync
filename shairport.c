@@ -1086,6 +1086,10 @@ int parse_options(int argc, char **argv) {
       die("You need to have metadata.include_cover_art enabled in order to use mqtt.publish_cover");
     }
     config_set_lookup_bool(config.cfg, "mqtt.enable_remote", &config.mqtt_enable_remote);
+
+    config_set_lookup_bool(config.cfg, "mqtt.publish_json", &config.mqtt_publish_json);
+ 
+
 #ifndef CONFIG_AVAHI
     if (config.mqtt_enable_remote) {
       die("You have enabled MQTT remote control which requires shairport-sync to be built with "

@@ -95,9 +95,36 @@ void on_connect(struct mosquitto *mosq, __attribute__((unused)) void *userdata,
 // helper function to publish under a topic and automatically append the main topic
 void mqtt_publish(char *topic, char *data, uint32_t length) {
   char fulltopic[strlen(config.mqtt_topic) + strlen(topic) + 3];
-  snprintf(fulltopic, strlen(config.mqtt_topic) + strlen(topic) + 2, "%s/%s", config.mqtt_topic,
+  
+  // PUblish in JSON format
+  if (config.mqtt_publish_json) {
+      char *jvalue = NULL;
+      
+      cJSON *jmsg = NULL;
+      if (jmsg == NULL) 
+        { 
+          debug(1, "[MQTT]: json object creation failed"); goto end; 
+        }
+
+      jvalue = cJSON_CreateString(data);
+      if (jvalue == NULL)
+      {
+        debug(1, "[MQTT]: json jvalue creation failed");goto end;
+      }
+      cJSON_AddItemToObject(jsmsg, topic , jvalue);
+      data = cJSON_Print(jsmg);
+      if (data == NULL)
+      {
+        debug(1, "[MQTT]: json msg string conversion failed");goto end;
+      }
+      :end
+      cJSON_Delete(jmsg);
+  } else {
+    snprintf(fulltopic, strlen(config.mqtt_topic) + strlen(topic) + 2, "%s/%s", config.mqtt_topic,
            topic);
-  debug(1, "[MQTT]: publishing under %s", fulltopic);
+    debug(1, "[MQTT]: publishing under %s", fulltopic);
+  }
+
 
   int rc;
   if ((rc = mosquitto_publish(global_mosq, NULL, fulltopic, length, data, 0, 0)) !=
