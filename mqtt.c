@@ -100,7 +100,7 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
   
   // PUblish in JSON format
   if (config.mqtt_publish_json) {
-    snprintf(fulltopic, strlen(config.mqtt_topic) + 2, "%s", config.mqtt_topic);
+    snprintf(fulltopic, strlen(config.mqtt_topic) + 2, "%s/airplay", config.mqtt_topic);
     cJSON *jvalue = NULL;
     cJSON *jmsg = cJSON_CreateObject();
     if (jmsg == NULL) 
@@ -115,7 +115,7 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
     }
 
     cJSON_AddItemToObject(jmsg, topic , jvalue);
-    jmsg_str = cJSON_PrintUnformatted(jmsg);
+    jmsg_str = cJSON_Print(jmsg);
     if (data == NULL)
     {
       debug(1, "[MQTT]: json msg string conversion failed"); goto end;
