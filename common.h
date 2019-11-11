@@ -139,6 +139,7 @@ typedef struct {
   char *mqtt_keyfile;
   char *mqtt_topic;
   int mqtt_publish_raw;
+  int mqtt_publish_json;
   int mqtt_publish_parsed;
   int mqtt_publish_cover;
   int mqtt_enable_remote;
