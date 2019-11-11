@@ -102,7 +102,7 @@ void on_connect(struct mosquitto *mosq, __attribute__((unused)) void *userdata,
 }
 
 // helper function to publish under a topic and automatically append the main topic
-void mqtt_publish(char *topic, char *data, uint32_t length)
+void mqtt_publish(char *topic, char *data, uint32_t length, int is_event)
 {
   char fulltopic[strlen(config.mqtt_topic) + strlen(topic) + 3];
   char *jmsg_str;
@@ -116,19 +116,16 @@ void mqtt_publish(char *topic, char *data, uint32_t length)
     snprintf(fulltopic, strlen(config.mqtt_topic) + strlen(subtopic) + 2, "%s/%s", config.mqtt_topic, subtopic);
 
     cJSON *jmsg = cJSON_CreateObject();
+    if (jmsg == NULL)
+    {
+      debug(1, "[MQTT]: json object creation failed");
+      goto end;
+    }
     cJSON *jvalue = NULL;
-    cJSON *jtype = NULL;
 
     if (length > 0)
     {
       char jvalue_str[strlen(data) + 1];
-      char jtype_str[5]; // 4 + 1
-
-      if (jmsg == NULL)
-      {
-        debug(1, "[MQTT]: json object creation failed");
-        goto end;
-      }
 
       strncpy(jvalue_str, data, length);
       jvalue_str[length] = '\0';
@@ -143,8 +140,26 @@ void mqtt_publish(char *topic, char *data, uint32_t length)
         cJSON_AddItemToObject(jmsg, topic, jvalue);
       }
     }
+    else if (is_event)
+    {
+      char jevent_str[strlen(data) + 1];
+
+      strncpy(jevent_str, data, length);
+      jevent_str[length] = '\0';
+      debug(1, "[MQTT]: json jevent_str %s, %d", jvalue_str, length);
+      jvalue = cJSON_CreateString(jevent_str);
+      if (jvalue == NULL)
+      {
+        debug(1, "[MQTT]: json jvalue creation from %s failed", jevent_str);
+      }
+      else
+      {
+        cJSON_AddItemToObject(jmsg, "event", jvalue);
+      }
+    }
     else
     { // length == 0
+
       jvalue = cJSON_CreateNull();
       if (jvalue == NULL)
       {
@@ -224,7 +239,7 @@ void mqtt_process_metadata(uint32_t type, uint32_t code, char *data, uint32_t le
     memcpy(topic, &val, 4);
     val = htonl(code);
     memcpy(topic + 5, &val, 4);
-    mqtt_publish(topic, data, length);
+    mqtt_publish(topic, data, length,MQTT_VALUE);
   }
   if (config.mqtt_publish_parsed)
   {
@@ -233,19 +248,19 @@ void mqtt_process_metadata(uint32_t type, uint32_t code, char *data, uint32_t le
       switch (code)
       {
       case 'asar':
-        mqtt_publish("artist", data, length);
+        mqtt_publish("artist", data, length,MQTT_VALUE);
         break;
       case 'asal':
-        mqtt_publish("album", data, length);
+        mqtt_publish("album", data, length,MQTT_VALUE);
         break;
       case 'minm':
-        mqtt_publish("title", data, length);
+        mqtt_publish("title", data, length,MQTT_VALUE);
         break;
       case 'asgn':
-        mqtt_publish("genre", data, length);
+        mqtt_publish("genre", data, length,MQTT_VALUE);
         break;
       case 'asfm':
-        mqtt_publish("format", data, length);
+        mqtt_publish("format", data, length,MQTT_VALUE);
         break;
       }
     }
@@ -254,36 +269,36 @@ void mqtt_process_metadata(uint32_t type, uint32_t code, char *data, uint32_t le
       switch (code)
       {
       case 'asal':
-        mqtt_publish("songalbum", data, length);
+        mqtt_publish("songalbum", data, length,MQTT_VALUE);
         break;
       case 'pvol':
-        mqtt_publish("volume", data, length);
+        mqtt_publish("volume", data, length,MQTT_VALUE);
         break;
       case 'clip':
-        mqtt_publish("client_ip", data, length);
+        mqtt_publish("client_ip", data, length,MQTT_VALUE);
         break;
       case 'abeg':
-        mqtt_publish("active_start", data, length);
+        mqtt_publish("active_start", data, length,MQTT_EVENT);
         break;
       case 'aend':
-        mqtt_publish("active_end", data, length);
+        mqtt_publish("active_end", data, length,MQTT_EVENT);
         break;
       case 'pbeg':
-        mqtt_publish("play_start", data, length);
+        mqtt_publish("play_start", data, length,MQTT_EVENT);
         break;
       case 'pend':
-        mqtt_publish("play_end", data, length);
+        mqtt_publish("play_end", data, length,MQTT_EVENT);
         break;
       case 'pfls':
-        mqtt_publish("play_flush", data, length);
+        mqtt_publish("play_flush", data, length,MQTT_EVENT);
         break;
       case 'prsm':
-        mqtt_publish("play_resume", data, length);
+        mqtt_publish("play_resume", data, length,MQTT_EVENT);
         break;
       case 'PICT':
         if (config.mqtt_publish_cover)
         {
-          mqtt_publish("cover", data, length);
+          mqtt_publish("cover", data, length,MQTT_VALUE);
         }
         break;
       }

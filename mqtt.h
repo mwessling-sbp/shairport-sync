@@ -11,4 +11,8 @@ void on_connect(struct mosquitto *mosq, void *userdata, int rc);
 void on_disconnect(struct mosquitto *mosq, void *userdata, int rc);
 void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *msg);
 void _cb_log(struct mosquitto *mosq, void *userdata, int level, const char *str);
+
+#define MQTT_EVENT 1
+#define MQTT_VALUE 0
+
 #endif /* #ifndef MQTT_H */
