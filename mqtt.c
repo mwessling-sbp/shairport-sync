@@ -100,23 +100,40 @@ void mqtt_publish(char *topic, char *data, uint32_t length) {
   
   // PUblish in JSON format
   if (config.mqtt_publish_json) {
-    char subtopic = "airplay";
+    char subtopic[] = "airplay";
+    char jvalue_str[strlen(data)+1];
+    char jtype_str[5]; // 4 + 1 
+
     snprintf(fulltopic, strlen(config.mqtt_topic) + strlen(subtopic) + 2, "%s/%s", config.mqtt_topic,subtopic );
 
     cJSON *jvalue = NULL;
+    cJSON *jtype  = NULL; 
+
     cJSON *jmsg   = cJSON_CreateObject();
     if (jmsg == NULL) 
       { 
         debug(1, "[MQTT]: json object creation failed"); goto end; 
       }
 
-    jvalue = cJSON_CreateString(data);
+    strncpy(jvalue_str, data, length);
+    jvalue = cJSON_CreateString(jvalue_str);
     if (jvalue == NULL)
     {
-      debug(1, "[MQTT]: json jvalue creation failed"); goto end;
+      debug(1, "[MQTT]: json jvalue creation from %s failed",jvalue_str);
+    } else {
+      cJSON_AddItemToObject(jmsg, topic , jvalue);
     }
 
-    cJSON_AddItemToObject(jmsg, topic , jvalue);
+    strncpy(jtype_str, data+length, 4);
+    jtype = cJSON_CreateString(jtype_str);
+    if (jtype == NULL)
+    {
+      debug(1, "[MQTT]: json jtype creation from %s failed",jtype_str);
+    } else {
+      cJSON_AddItemToObject(jmsg, "type" , jtype);
+    }
+
+
     jmsg_str = cJSON_Print(jmsg);
     if (data == NULL)
     {
